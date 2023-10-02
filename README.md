@@ -1,1 +1,3 @@
-# odin-mastermind-ruby
+## Odin Master Mind
+
+Second OO project!
