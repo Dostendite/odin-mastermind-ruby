@@ -21,14 +21,18 @@ class Game
     # and explain not only the
     # gamemode, but also show the colors
     # and indicators
+    system 'clear'
     select_player
   end
 
-  def play_turn(color_array)
-    @game_board.insert_colors(color_array)
+  def set_player_key
+    print 'Enter key for the computer to solve: '
+    player_code = gets.chomp.split('')
+    player_code.map!(&:to_i)
+    @game_board.key = player_code
   end
 
-  def player_play_turn
+  def fetch_player_guess
     print 'Enter four colors'
     puts " (#{'[1]'.colorize(:red)}#{'[2]'.colorize(:green)}" + 
            "#{'[3]'.colorize(:yellow)}#{'[4]'.colorize(:blue)}" +
@@ -37,27 +41,28 @@ class Game
     color_inputs.map(&:to_i)
   end
 
-  def computer_play_turn
-    #
-  end
-
-  # main game functions
   def play_game_player
     @game_board.print_board
 
     check = game_over?
     until check
-      play_turn(player_play_turn)
+      @game_board.make_guess(fetch_player_guess)
       check = game_over?
     end
   end
 
-  def input_player_key
-    # @game_board.key = nil
-  end
-
   def play_game_computer
-    # input_player_key
+    @computer = Computer.new
+    set_player_key
+    @game_board.print_board
+
+    check = game_over?
+
+    until check
+      @game_board.make_guess(@computer.play_random_strat)
+      sleep 0.25
+      check = game_over?
+    end
   end
 
   private
@@ -65,8 +70,13 @@ class Game
   def game_over?
     check = @game_board.check_board_status
     if check == 'Victory'
-      puts 'You won!'
-      true
+      if @computer
+        puts 'The computer wins!'
+        true
+      else
+        puts 'You win!'
+        true
+      end
     elsif check == 'Out of turns'
       puts "Out of turns!\nThe secret key was #{@game_board.key}!"
       true
@@ -78,30 +88,31 @@ end
 
 # Game board (For Game object)
 class Board
-  attr_reader :key, :insert_counter
+  attr_accessor :key
 
   def initialize
     @board = (Array.new(12) { Array.new(8, ' ') })
     @colors = { 'red' => 1, 'green' => 2, 'yellow' => 3,
                 'blue' => 4, 'magenta' => 5, 'white' => 6 }
     @insert_counter = 0
-    @key = generate_key
+    @key = generate_random_key
   end
 
   # play a turn and insert 4 colors
-  def insert_colors(color_array)
+  def make_guess(color_array)
     @insert_counter -= 1
 
     color_array.each_with_index do |_color, idx|
       @board[@insert_counter][idx] = color_array[idx]
     end
 
-    inspect_colors
     print_board
   end
 
   def print_board
     system 'clear'
+    update_board
+
     @board.each do |row|
       # first 4 colors
       row[0..3].each do |color|
@@ -117,20 +128,12 @@ class Board
   end
 
   def check_board_status
-    if @insert_counter == -12
-      'Out of turns'
-    elsif @board[@insert_counter][0..3] == @key
+    if @board[@insert_counter][0..3] == @key
       'Victory'
+    elsif @insert_counter == -12
+      'Out of turns'
     end
   end
-
-  # def colors_to_integers(color_array)
-  #   # ['blue', 'green', 'yellow', 'red'] => [4, 2, 3, 1]
-  #   color_array.each_with_index do |_, idx|
-  #     color_array[idx] = @colors[color_array[idx]]
-  #   end
-  #   color_array
-  # end
 
   private
 
@@ -163,7 +166,7 @@ class Board
     end
   end
 
-  def inspect_colors
+  def update_board
     @board.each do |row|
       0.upto(3) do |idx|
         if row[idx] == @key[idx]
@@ -178,8 +181,22 @@ class Board
     end
   end
 
-  def generate_key
+  def generate_random_key
     [1, 2, 3, 4, 5, 6].sample(4)
+  end
+end
+
+# Computer player class
+class Computer
+  def get_board_info(board); end
+
+  def generate_random_key
+    [1, 2, 3, 4, 5, 6].sample(4)
+  end
+
+  # random number strat
+  def play_random_strat
+    generate_random_key
   end
 end
 
