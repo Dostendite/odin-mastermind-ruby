@@ -1,4 +1,5 @@
 require 'colorize'
+require 'pry-byebug'
 
 # Mastermind game board
 class Board
@@ -7,14 +8,12 @@ class Board
 
   def initialize
     @board = (Array.new(12) { Array.new(8, ' ') })
-    @colors = { 1 => 'r', 2 =>  'g', 3 =>  'y',
-                4 => 'b', 5 => 'm', 6 => 'w' }
     @key = generate_key
     @insert_counter = 0
   end
 
   def generate_key
-    key = [1, 2, 3, 4, 5, 6].sample(4)
+    [1, 2, 3, 4, 5, 6].sample(4)
   end
 
   def print_color(color)
@@ -48,10 +47,6 @@ class Board
 
   def print_board
     system 'clear'
-    puts '~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-    puts '        MASTERMIND'
-    puts '~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-    puts '  Guesses    |  Indicators'
     @board.each do |row|
       # first 4 colors
       row[0..3].each do |color|
@@ -66,16 +61,52 @@ class Board
     end
   end
 
+  def check_board_status
+    if @insert_counter == -12
+      'Game over'
+    elsif @board[@insert_counter][0..3] == @key
+      'Victory'
+    end
+  end
+
+  def colors_to_integers(color_array)
+    color_array.each_with_index do |color, idx|
+      case color
+      when 'red'
+        color_array[idx] = 1
+      when 'green'
+        color_array[idx] = 2
+      when 'yellow'
+        color_array[idx] = 3
+      when 'blue'
+        color_array[idx] = 4
+      when 'magenta'
+        color_array[idx] = 5
+      when 'white'
+        color_array[idx] = 6
+      end
+    end
+    color_array
+  end
+
+  def manual_insert_colors
+    print "Enter the four colors to play\n(separated by spaces): "
+    color_array = gets.chomp.split
+    colors_to_integers(color_array)
+    insert_colors(color_array)
+  end
+
   # play a turn and insert 4 colors
-  def insert_colors(colors)
+  def insert_colors(color_array)
     @insert_counter -= 1
 
-    colors.each_with_index do |color, idx|
-      @board[@insert_counter][idx] = colors[idx]
+    color_array.each_with_index do |_color, idx|
+      @board[@insert_counter][idx] = color_array[idx]
     end
 
     inspect_colors
     print_board
+    check_board_status
   end
 
   # inspect the colors and return
@@ -85,7 +116,8 @@ class Board
     # fix indicators always
     # matching number
     # (learn how they really work first though)
-    @board.each do |row|
+    @board.each_with_index do |row|
+      indicators = Array.new(4)
       0.upto(3) do |idx|
         if row[idx] == @key[idx]
           row[idx + 4] = '!'
@@ -95,6 +127,12 @@ class Board
           row[idx + 4] = '?'
         end
       end
+      # if row[-1] == 'shuffled'
+      #   next
+      # else
+      #   row[4..7] = row[4..7].shuffle
+      #   row.push('shuffled')
+      # end
     end
   end
 end
@@ -103,6 +141,17 @@ def gen_random_colors
   [1, 2, 3, 4, 5, 6].sample(4)
 end
 
-my_board = Board.new
-my_board.insert_colors(gen_random_colors)
-puts "Key: #{my_board.key}"
+board = Board.new
+game_on = true
+board.print_board
+
+while game_on
+  turn = board.manual_insert_colors
+  if turn == 'Game over'
+    puts "Game over, you're out of turns!"
+    break
+  elsif turn == 'Victory'
+    puts 'You guessed the code, you win!'
+    break
+  end
+end
