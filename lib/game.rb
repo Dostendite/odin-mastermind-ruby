@@ -4,22 +4,28 @@ require 'colorize'
 class Game
   def initialize
     @game_board = Board.new
-    @player = select_player
-    @turns_played = 0
   end
 
   def select_player
-    # have player choose
-    # if they want to be the code maker
-    # or the code breaker
+    print 'Do you want to create the code or to break it? (C/B): '
+    selection = gets.chomp
+    if selection == 'C'
+      play_game_computer
+    else
+      play_game_player
+    end
   end
 
-  def game_introduction
+  def start_game
     # introduce the player to the game
     # and explain not only the
     # gamemode, but also show the colors
     # and indicators
-    # select_player
+    select_player
+  end
+
+  def play_turn(color_array)
+    @game_board.insert_colors(color_array)
   end
 
   def player_play_turn
@@ -29,30 +35,34 @@ class Game
            "#{'[5]'.colorize(:magenta)}#{'[6]'.colorize(:white)})"
     color_inputs = gets.chomp.split('')
     color_inputs.map(&:to_i)
-    # @game_board.colors_to_integers(color_array)
   end
 
-  def play_turn(color_array)
-    @turns_played += 1
-    @game_board.insert_colors(color_array)
+  def computer_play_turn
+    #
   end
 
   # main game functions
-  def play_game
+  def play_game_player
     @game_board.print_board
-    loop do
-      # temporary method
-      play_turn(player_play_turn)
 
-      break if game_over?
+    check = game_over?
+    until check
+      play_turn(player_play_turn)
+      check = game_over?
     end
+  end
+
+  def input_player_key
+    # @game_board.key = nil
+  end
+
+  def play_game_computer
+    # input_player_key
   end
 
   private
 
   def game_over?
-    system 'clear'
-    @game_board.print_board
     check = @game_board.check_board_status
     if check == 'Victory'
       puts 'You won!'
@@ -62,16 +72,6 @@ class Game
       true
     else
       false
-    end
-  end
-
-  def check_board_status(board_status)
-    if board_status == 'Victory'
-      game_over('Victory')
-      'Victory'
-    elsif board_status == 'Out of turns'
-      game_over('Out of turns')
-      'Victory'
     end
   end
 end
@@ -184,4 +184,4 @@ class Board
 end
 
 game = Game.new
-game.play_game
+game.start_game
