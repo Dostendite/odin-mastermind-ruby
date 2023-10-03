@@ -59,7 +59,7 @@ class Game
     check = game_over?
 
     until check
-      @game_board.make_guess(@computer.play_random_strat)
+      @game_board.make_guess(@computer.make_guess)
       sleep 0.25
       check = game_over?
     end
@@ -188,14 +188,15 @@ end
 
 # Computer player class
 class Computer
-  def get_board_info(board); end
+  def get_board_info(board)
+    #
+  end
 
   def generate_random_key
     [1, 2, 3, 4, 5, 6].sample(4)
   end
 
-  # random number strat
-  def play_random_strat
+  def make_guess
     generate_random_key
   end
 end
