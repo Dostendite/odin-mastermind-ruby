@@ -182,7 +182,11 @@ class Board
   end
 
   def generate_random_key
-    [1, 2, 3, 4, 5, 6].sample(4)
+    key = []
+    4.times do
+      key << rand(1..6)
+    end
+    key
   end
 end
 
@@ -193,7 +197,11 @@ class Computer
   end
 
   def generate_random_key
-    [1, 2, 3, 4, 5, 6].sample(4)
+    key = []
+    4.times do
+      key << rand(1..6)
+    end
+    key
   end
 
   def make_guess
