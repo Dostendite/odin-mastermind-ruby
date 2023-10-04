@@ -61,6 +61,7 @@ class Game
     until check
       @game_board.make_guess(@computer.make_guess)
       check = game_over?
+      p @computer.fetch_board_info
     end
   end
 
@@ -173,21 +174,26 @@ class Board
 
   def update_board
     @board.each do |row|
-      indicator_array = []
+
       duplicate_key = []
       duplicate_key.replace(@key)
+
+      # find exact matches first
       0.upto(3) do |idx|
-        if duplicate_key[idx] == row[idx]
+        if row[idx] == duplicate_key
           duplicate_key.delete_at(idx)
-          indicator_array << '!'
-        elsif duplicate_key.include?(row[idx])
-          duplicate_key.delete_at(duplicate_key.index(row[idx]))
-          indicator_array << '*'
-        else
-          indicator_array << '?'
+          row[idx + 4] = '!'
         end
       end
-      row[4..7] = indicator_array
+
+      0.upto(3) do |idx|
+        if duplicate_key.include?(row[idx])
+          duplicate_key.delete_at(idx)
+          row[idx + 4] = '*'
+        else
+          row[idx + 4] = '?'
+        end
+      end
     end
   end
 
@@ -202,10 +208,6 @@ end
 
 # Computer player class
 class Computer
-  def fetch_board_info(board_indicators)
-    p board_indicators
-  end
-
   def generate_random_key
     key = []
     4.times do
@@ -215,7 +217,16 @@ class Computer
   end
 
   def make_guess
+    latest_indicators = fetch_board_info
+
+    # returns the next guess
     generate_random_key
+  end
+
+  private
+
+  def fetch_board_info(board_indicators)
+    p board_indicators
   end
 end
 
