@@ -60,7 +60,6 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
-      sleep 0.25
       check = game_over?
     end
   end
@@ -88,7 +87,7 @@ end
 
 # Game board (For Game object)
 class Board
-  attr_accessor :key
+  attr_accessor :key, :indicators
 
   def initialize
     @board = (Array.new(12) { Array.new(8, ' ') })
@@ -96,6 +95,8 @@ class Board
                 'blue' => 4, 'magenta' => 5, 'white' => 6 }
     @insert_counter = 0
     @key = generate_random_key
+    # latest indicators
+    @indicators = nil
   end
 
   # play a turn and insert 4 colors
@@ -112,7 +113,6 @@ class Board
   def print_board
     system 'clear'
     update_board
-
     @board.each do |row|
       # first 4 colors
       row[0..3].each do |color|
@@ -125,6 +125,7 @@ class Board
       end
       print "\n"
     end
+    update_indicators
   end
 
   def check_board_status
@@ -136,6 +137,10 @@ class Board
   end
 
   private
+
+  def update_indicators
+    @indicators = @board[@insert_counter][4..7]
+  end
 
   def print_color(color)
     case color
@@ -168,9 +173,9 @@ class Board
 
   def update_board
     @board.each do |row|
+      indicator_array = []
       duplicate_key = []
       duplicate_key.replace(@key)
-      indicator_array = []
       0.upto(3) do |idx|
         if duplicate_key[idx] == row[idx]
           duplicate_key.delete_at(idx)
@@ -197,8 +202,8 @@ end
 
 # Computer player class
 class Computer
-  def get_board_info(board)
-    #
+  def fetch_board_info(board_indicators)
+    p board_indicators
   end
 
   def generate_random_key
