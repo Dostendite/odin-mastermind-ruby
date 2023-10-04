@@ -168,16 +168,21 @@ class Board
 
   def update_board
     @board.each do |row|
+      duplicate_key = []
+      duplicate_key.replace(@key)
+      indicator_array = []
       0.upto(3) do |idx|
-        if row[idx] == @key[idx]
-          row[idx + 4] = '!'
-        elsif @key.include?(row[idx])
-          row[idx + 4] = '*'
+        if duplicate_key[idx] == row[idx]
+          duplicate_key.delete_at(idx)
+          indicator_array << '!'
+        elsif duplicate_key.include?(row[idx])
+          duplicate_key.delete_at(duplicate_key.index(row[idx]))
+          indicator_array << '*'
         else
-          row[idx + 4] = '?'
+          indicator_array << '?'
         end
       end
-      row[4..7] = row[4..7].shuffle
+      row[4..7] = indicator_array
     end
   end
 
