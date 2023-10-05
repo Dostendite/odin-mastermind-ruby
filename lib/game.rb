@@ -115,6 +115,7 @@ class Board
     key_duplicate = []
     key_duplicate.replace(key)
 
+    # can probably optimize this using map with index
     @indicators[@insert_counter].each_with_index do |_, idx|
       key_duplicate.each do
         if @indicators[@insert_counter][idx] == key_duplicate[idx]
@@ -134,6 +135,9 @@ class Board
     end
 
     @indicators[@insert_counter].map! { |item| (0..6).include?(item) ? '?' : item }
+
+    # can scramble output in an orderly manner by creating
+    # a custom sorting method
   end
 
   def print_board
