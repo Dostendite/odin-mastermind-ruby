@@ -124,9 +124,6 @@ class Board
       end
     end
 
-    puts "Key: #{@key}"
-    puts "Key duplicate after first check: #{key_duplicate}"
-
     @indicators[@insert_counter].each_with_index do |_, idx|
       key_duplicate.each do |key_item|
         if @indicators[@insert_counter][idx] == key_item
@@ -136,14 +133,11 @@ class Board
       end
     end
 
-    p @indicators[@insert_counter]
     @indicators[@insert_counter].map! { |item| (0..6).include?(item) ? '?' : item }
-    p @indicators[@insert_counter]
-    @indicators[@insert_counter]
   end
 
   def print_board
-    # system 'clear'
+    system 'clear'
     12.times do |idx|
       @board[idx].each do |number|
         print_color(number)
