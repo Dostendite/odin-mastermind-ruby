@@ -33,11 +33,11 @@ class Game
   end
 
   def fetch_player_guess
-    print 'Enter four colors'
+    print 'Enter guess: '
     puts " (#{'[1]'.colorize(:red)}#{'[2]'.colorize(:green)}" + 
            "#{'[3]'.colorize(:yellow)}#{'[4]'.colorize(:blue)}" +
            "#{'[5]'.colorize(:magenta)}#{'[6]'.colorize(:white)})"
-    color_inputs = gets.chomp.split('')
+    color_inputs = gets.chomp.split('')[0..3]
     color_inputs.map(&:to_i)
   end
 
@@ -61,7 +61,6 @@ class Game
     until check
       @game_board.make_guess(@computer.make_guess)
       check = game_over?
-      p @computer.fetch_board_info
     end
   end
 
@@ -91,13 +90,12 @@ class Board
   attr_accessor :key, :indicators
 
   def initialize
-    @board = (Array.new(12) { Array.new(8, ' ') })
+    @board = (Array.new(12) { Array.new(4, ' ') })
+    @indicators = (Array.new(12) { Array.new(4, ' ') })
     @colors = { 'red' => 1, 'green' => 2, 'yellow' => 3,
                 'blue' => 4, 'magenta' => 5, 'white' => 6 }
     @insert_counter = 0
     @key = generate_random_key
-    # latest indicators
-    @indicators = nil
   end
 
   # play a turn and insert 4 colors
@@ -106,31 +104,60 @@ class Board
 
     color_array.each_with_index do |_color, idx|
       @board[@insert_counter][idx] = color_array[idx]
+      @indicators[@insert_counter][idx] = color_array[idx]
     end
 
+    update_indicators
     print_board
   end
 
+  def update_indicators
+    key_duplicate = []
+    key_duplicate.replace(key)
+
+    @indicators[@insert_counter].each_with_index do |_, idx|
+      key_duplicate.each do
+        if @indicators[@insert_counter][idx] == key_duplicate[idx]
+          @indicators[@insert_counter][idx] = '!'
+          key_duplicate[idx] = nil
+        end
+      end
+    end
+
+    puts "Key: #{@key}"
+    puts "Key duplicate after first check: #{key_duplicate}"
+
+    @indicators[@insert_counter].each_with_index do |_, idx|
+      key_duplicate.each do |key_item|
+        if @indicators[@insert_counter][idx] == key_item
+          @indicators[@insert_counter][idx] = '*'
+          key_duplicate[key_duplicate.find_index(key_item)] = nil
+        end
+      end
+    end
+
+    p @indicators[@insert_counter]
+    @indicators[@insert_counter].map! { |item| (0..6).include?(item) ? '?' : item }
+    p @indicators[@insert_counter]
+    @indicators[@insert_counter]
+  end
+
   def print_board
-    system 'clear'
-    update_board
-    @board.each do |row|
-      # first 4 colors
-      row[0..3].each do |color|
-        print_color(color)
+    # system 'clear'
+    12.times do |idx|
+      @board[idx].each do |number|
+        print_color(number)
       end
       print ' | '
-      # guess indicators
-      row[4..7].each do |color|
-        print_color(color)
+      @indicators[idx].each do |indicator|
+        print_color(indicator)
       end
-      print "\n"
+      puts
     end
-    update_indicators
   end
 
   def check_board_status
-    if @board[@insert_counter][0..3] == @key
+    if @board[@insert_counter] == @key
       'Victory'
     elsif @insert_counter == -12
       'Out of turns'
@@ -138,10 +165,6 @@ class Board
   end
 
   private
-
-  def update_indicators
-    @indicators = @board[@insert_counter][4..7]
-  end
 
   def print_color(color)
     case color
@@ -172,31 +195,6 @@ class Board
     end
   end
 
-  def update_board
-    @board.each do |row|
-
-      duplicate_key = []
-      duplicate_key.replace(@key)
-
-      # find exact matches first
-      0.upto(3) do |idx|
-        if row[idx] == duplicate_key
-          duplicate_key.delete_at(idx)
-          row[idx + 4] = '!'
-        end
-      end
-
-      0.upto(3) do |idx|
-        if duplicate_key.include?(row[idx])
-          duplicate_key.delete_at(idx)
-          row[idx + 4] = '*'
-        else
-          row[idx + 4] = '?'
-        end
-      end
-    end
-  end
-
   def generate_random_key
     key = []
     4.times do
@@ -217,16 +215,13 @@ class Computer
   end
 
   def make_guess
-    latest_indicators = fetch_board_info
-
-    # returns the next guess
     generate_random_key
   end
 
   private
 
-  def fetch_board_info(board_indicators)
-    p board_indicators
+  def fetch_board_info
+    #
   end
 end
 
