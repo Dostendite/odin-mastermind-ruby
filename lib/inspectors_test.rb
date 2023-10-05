@@ -6,26 +6,6 @@ end
 puts "Key: #{key}"
 
 def return_indicators(input_array, key)
-  # iterate through the input
-  # then iterate through the key
-
-  # each_with_index only on the first one
-  # because we can share the index
-
-  # check every input number against
-  # the key and look for exact matches first
-  # if so, replace input[idx] with '!' and set
-  # key[idx] to nil to bomb it
-
-  # we can even optimize this into a map very easily
-
-  # after that nested loop, do another run,
-  # and check them the same way
-  # if a number from input is the same as
-  # a number from the key (doesn't matter the position)
-  # bomb them both! (can use .find_index)
-  # doesn't matter if it's not the exact position because
-  # it will return the right asterisks anyways
   input_array.each_with_index do |_, idx|
     key.each do
       if input_array[idx] == key[idx]

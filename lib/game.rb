@@ -135,9 +135,7 @@ class Board
     end
 
     @indicators[@insert_counter].map! { |item| (0..6).include?(item) ? '?' : item }
-
-    # can scramble output in an orderly manner by creating
-    # a custom sorting method
+    @indicators[@insert_counter].sort!
   end
 
   def print_board
