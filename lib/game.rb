@@ -59,6 +59,7 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
+      sleep 0.25
       check = game_over?
     end
   end
@@ -142,7 +143,7 @@ class Board
   end
 
   def print_board
-    # system 'clear'
+    system 'clear'
     12.times do |idx|
       @board[idx].each do |number|
         print_color(number)
@@ -192,7 +193,7 @@ class Board
     when '!'
       print '[!]'.on_red
     end
-  end
+  end 
 
   def generate_random_key
     key = []
@@ -205,17 +206,17 @@ end
 
 # Computer player class
 class Computer
-  attr_reader :scores
+  attr_reader :scores, :possible_keys
 
   def initialize
     @scores = { 1 => 0, 2 => 0, 3 => 0,
                 4 => 0, 5 => 0, 6 => 0 }
     @current_guesses = 0
+    @possible_keys = generate_possible_keys
     @latest_key = nil
   end
 
   def make_guess
-    @current_guesses < 4
     update_computer_key_random
     @current_guesses += 1
     @latest_key
@@ -239,6 +240,39 @@ class Computer
         score -= 1
       end
     end
+  end
+
+  private
+  
+  def generate_possible_keys
+    possible_keys = []
+    start_code = 1110
+
+    while start_code < 6666
+      ary_version = start_code.to_s.split('').map!(&:to_i).reverse!
+      if ary_version.include?(7)
+        index_of_seven = ary_version.find_index(7)
+        if ary_version[index_of_seven..index_of_seven + 2] == [7, 6, 6]
+          start_code += 444
+          possible_keys << start_code
+        elsif ary_version[index_of_seven..index_of_seven + 1] == [7, 6]
+          start_code += 44
+          possible_keys << start_code
+        else
+          start_code += 4
+          possible_keys << start_code
+        end
+      else
+        start_code += 1
+        possible_keys << start_code
+      end
+    end
+
+    possible_keys.each do |key|
+      possible_keys.delete(key) if key.to_s.split('').map!(&:to_i).include?(7)
+    end
+    
+    possible_keys
   end
 end
 
