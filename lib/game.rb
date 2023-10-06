@@ -240,5 +240,7 @@ class Computer
       end
     end
   end
+end
+
 game = Game.new
 game.start_game
