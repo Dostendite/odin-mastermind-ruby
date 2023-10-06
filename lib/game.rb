@@ -18,9 +18,8 @@ class Game
 
   def start_game
     # introduce the player to the game
-    # and explain not only the
-    # gamemode, but also show the colors
-    # and indicators
+    # and explain the gamemode and
+    # the colors and indicators
     system 'clear'
     select_player
   end
@@ -60,6 +59,7 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
+      @computer.process_indicators(@game_board.latest_indicators)
       check = game_over?
     end
   end
@@ -138,8 +138,12 @@ class Board
     @indicators[@insert_counter].sort!
   end
 
+  def latest_indicators
+    @indicators[@insert_counter]
+  end
+
   def print_board
-    system 'clear'
+    # system 'clear'
     12.times do |idx|
       @board[idx].each do |number|
         print_color(number)
@@ -202,24 +206,39 @@ end
 
 # Computer player class
 class Computer
-  def generate_random_key
-    key = []
-    4.times do
-      key << rand(1..6)
-    end
-    key
+  attr_reader :scores
+
+  def initialize
+    @scores = { 1 => 0, 2 => 0, 3 => 0,
+                4 => 0, 5 => 0, 6 => 0 }
+    @current_guesses = 0
+    @latest_key = nil
   end
 
   def make_guess
-    generate_random_key
+    @current_guesses < 4
+    update_computer_key_random
+    @current_guesses += 1
+    @latest_key
   end
 
-  private
+  def update_computer_key_random
+    @latest_key = []
+    4.times do
+      @latest_key << rand(1..6)
+    end
 
-  def fetch_board_info
-    #
+  def process_indicators(board_indicators)
+    score = 0
+    board_indicators.each do |indicator|
+      if indicator == '!'
+        score += 1
+      elsif indicator == '*'
+        score += 1
+      else # indicator = ?
+        score -= 1
+      end
+    end
   end
-end
-
 game = Game.new
 game.start_game
