@@ -59,7 +59,6 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
-      @computer.process_indicators(@game_board.latest_indicators)
       check = game_over?
     end
   end
@@ -227,6 +226,7 @@ class Computer
     4.times do
       @latest_key << rand(1..6)
     end
+  end
 
   def process_indicators(board_indicators)
     score = 0
