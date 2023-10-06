@@ -59,8 +59,10 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
+      @computer.process_indicators(@game_board.latest_indicators)
       sleep 0.25
       check = game_over?
+      puts "DEBUG: ind_am: #{@computer.indicator_amount} w_c: #{@computer.winning_combination}"
     end
   end
 
@@ -143,7 +145,7 @@ class Board
   end
 
   def print_board
-    system 'clear'
+    # system 'clear'
     12.times do |idx|
       @board[idx].each do |number|
         print_color(number)
@@ -206,74 +208,94 @@ end
 
 # Computer player class
 class Computer
-  attr_reader :scores, :possible_keys
+  attr_reader :indicator_amount, :winning_combination
 
   def initialize
-    @scores = { 1 => 0, 2 => 0, 3 => 0,
-                4 => 0, 5 => 0, 6 => 0 }
-    @current_guesses = 0
-    @possible_keys = generate_possible_keys
-    @latest_key = nil
+    @indicator_amount = 0
+    @winning_combination = []
+    @guesses_made = []
+    @rainbow_colors = [[1, 1, 1, 1],
+                       [2, 2, 2, 2],
+                       [3, 3, 3, 3],
+                       [4, 4, 4, 4],
+                       [5, 5, 5, 5],
+                       [6, 6, 6, 6]]
+  end
+
+  def delete_rainbow_color(color)
+    @rainbow_colors.each do |row|
+      @rainbow_colors.delete(row) if row.include?(color)
+    end
+  end
+
+  def guess_rainbow
+    guess = @rainbow_colors.sample
+    delete_rainbow_color(guess[0])
+    @guesses_made << guess[0]
+    guess
+  end
+
+  def guess_informed
+    @winning_combination.shuffle
   end
 
   def make_guess
-    update_computer_key_random
-    @current_guesses += 1
-    @latest_key
-  end
-
-  def update_computer_key_random
-    @latest_key = []
-    4.times do
-      @latest_key << rand(1..6)
+    if @indicator_amount < 4
+      guess_rainbow
+    else
+      guess_informed
     end
   end
 
   def process_indicators(board_indicators)
+
+    return if @indicator_amount >= 4
+
     score = 0
     board_indicators.each do |indicator|
       if indicator == '!'
         score += 1
-      elsif indicator == '*'
-        score += 1
-      else # indicator = ?
-        score -= 1
-      end
-    end
-  end
-
-  private
-  
-  def generate_possible_keys
-    possible_keys = []
-    start_code = 1110
-
-    while start_code < 6666
-      ary_version = start_code.to_s.split('').map!(&:to_i).reverse!
-      if ary_version.include?(7)
-        index_of_seven = ary_version.find_index(7)
-        if ary_version[index_of_seven..index_of_seven + 2] == [7, 6, 6]
-          start_code += 444
-          possible_keys << start_code
-        elsif ary_version[index_of_seven..index_of_seven + 1] == [7, 6]
-          start_code += 44
-          possible_keys << start_code
-        else
-          start_code += 4
-          possible_keys << start_code
-        end
-      else
-        start_code += 1
-        possible_keys << start_code
+        @indicator_amount += 1
       end
     end
 
-    possible_keys.each do |key|
-      possible_keys.delete(key) if key.to_s.split('').map!(&:to_i).include?(7)
+    score.times do
+      @winning_combination << @guesses_made[-1]
     end
-    
-    possible_keys
   end
+
+  # private
+
+  # def generate_possible_keys
+  #   possible_keys = []
+  #   start_code = 1110
+
+  #   while start_code < 6666
+  #     ary_version = start_code.to_s.split('').map!(&:to_i).reverse!
+  #     if ary_version.include?(7)
+  #       index_of_seven = ary_version.find_index(7)
+  #       if ary_version[index_of_seven..index_of_seven + 2] == [7, 6, 6]
+  #         start_code += 444
+  #         possible_keys << start_code
+  #       elsif ary_version[index_of_seven..index_of_seven + 1] == [7, 6]
+  #         start_code += 44
+  #         possible_keys << start_code
+  #       else
+  #         start_code += 4
+  #         possible_keys << start_code
+  #       end
+  #     else
+  #       start_code += 1
+  #       possible_keys << start_code
+  #     end
+  #   end
+
+  #   possible_keys.each do |key|
+  #     possible_keys.delete(key) if key.to_s.split('').map!(&:to_i).include?(7)
+  #   end
+
+  #   possible_keys
+  # end
 end
 
 game = Game.new
