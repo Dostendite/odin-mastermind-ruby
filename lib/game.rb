@@ -59,10 +59,13 @@ class Game
 
     until check
       @game_board.make_guess(@computer.make_guess)
-      @computer.process_indicators(@game_board.latest_indicators)
+
+      if @computer.indicator_amount < 4
+        @computer.process_indicators(@game_board.latest_indicators)
+      end
+
       sleep 0.25
       check = game_over?
-      puts "DEBUG: ind_am: #{@computer.indicator_amount} w_c: #{@computer.winning_combination}"
     end
   end
 
@@ -72,14 +75,11 @@ class Game
     check = @game_board.check_board_status
     if check == 'Victory'
       if @computer
-        puts 'The computer wins!'
         true
       else
-        puts 'You win!'
         true
       end
     elsif check == 'Out of turns'
-      puts "Out of turns!\nThe secret key was #{@game_board.key}!"
       true
     else
       false
@@ -100,7 +100,6 @@ class Board
     @key = generate_random_key
   end
 
-  # play a turn and insert 4 colors
   def make_guess(color_array)
     @insert_counter -= 1
 
@@ -235,67 +234,45 @@ class Computer
     guess
   end
 
-  def guess_informed
-    @winning_combination.shuffle
-  end
-
   def make_guess
-    if @indicator_amount < 4
+    if @indicator_amount == 0
       guess_rainbow
+    elsif @indicator_amount < 4
+      guess = guess_rainbow
+      if @indicator_amount > 0
+        @indicator_amount.times do |i|
+          guess[i] = @winning_combination[i]
+        end
+        guess
+      end
     else
-      guess_informed
+      guess = @winning_combination.shuffle
+
+      if @guesses_made.include?(guess)
+        while @guesses_made.include?(guess)
+          guess = guess = @winning_combination.shuffle
+        end
+      end
+      guess
     end
   end
 
   def process_indicators(board_indicators)
-
-    return if @indicator_amount >= 4
-
     score = 0
     board_indicators.each do |indicator|
       if indicator == '!'
         score += 1
-        @indicator_amount += 1
+      elsif indicator == '*'
+        score += 1
       end
     end
 
+    score -= @winning_combination.length
+    @indicator_amount += score
     score.times do
       @winning_combination << @guesses_made[-1]
     end
   end
-
-  # private
-
-  # def generate_possible_keys
-  #   possible_keys = []
-  #   start_code = 1110
-
-  #   while start_code < 6666
-  #     ary_version = start_code.to_s.split('').map!(&:to_i).reverse!
-  #     if ary_version.include?(7)
-  #       index_of_seven = ary_version.find_index(7)
-  #       if ary_version[index_of_seven..index_of_seven + 2] == [7, 6, 6]
-  #         start_code += 444
-  #         possible_keys << start_code
-  #       elsif ary_version[index_of_seven..index_of_seven + 1] == [7, 6]
-  #         start_code += 44
-  #         possible_keys << start_code
-  #       else
-  #         start_code += 4
-  #         possible_keys << start_code
-  #       end
-  #     else
-  #       start_code += 1
-  #       possible_keys << start_code
-  #     end
-  #   end
-
-  #   possible_keys.each do |key|
-  #     possible_keys.delete(key) if key.to_s.split('').map!(&:to_i).include?(7)
-  #   end
-
-  #   possible_keys
-  # end
 end
 
 game = Game.new
