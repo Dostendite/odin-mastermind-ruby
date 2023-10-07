@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Game board (For Game object)
 class Board
   attr_accessor :key, :indicators

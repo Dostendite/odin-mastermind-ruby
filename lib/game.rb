@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Game object
 class Game
   def initialize

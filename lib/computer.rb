@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Computer player class
 class Computer
   attr_reader :indicator_amount, :winning_combination
