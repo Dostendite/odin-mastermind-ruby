@@ -110,10 +110,6 @@ class Board
   end 
 
   def generate_random_key
-    key = []
-    4.times do
-      key << rand(1..6)
-    end
-    key
+    [rand(1..6), rand(1..6), rand(1..6), rand(1..6)] 
   end
 end
