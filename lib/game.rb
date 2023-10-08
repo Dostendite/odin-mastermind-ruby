@@ -71,13 +71,16 @@ class Game
     check = @game_board.check_board_status
     if check == 'Victory'
       if @computer
+        puts 'The computer wins!'
         true
       else
+        puts 'You win!'
         true
       end
     elsif check == 'Out of turns'
       true
     else
+      puts 'Out of turns!'
       false
     end
   end

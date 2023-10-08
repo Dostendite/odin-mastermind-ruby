@@ -57,7 +57,7 @@ class Board
   end
 
   def print_board
-    # system 'clear'
+    system 'clear'
     15.times do |idx|
       @board[idx].each do |number|
         print_color(number)

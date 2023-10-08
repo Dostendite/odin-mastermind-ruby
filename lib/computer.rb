@@ -15,7 +15,6 @@ class Computer
 
   def process_indicators(latest_indicators)
     prune_codes(latest_indicators)
-    puts "Codes left: #{@possible_codes.length}"
     @current_guess = @possible_codes.sample
   end
 
