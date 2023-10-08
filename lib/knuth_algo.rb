@@ -32,6 +32,8 @@ module KnuthAlgo
   end
 
   def compare_codes(guess, code)
+    
+    puts "Comparing #{guess} vs. #{code}..."
     guess = integer_to_array(guess)
     code = integer_to_array(code)
     result = []
@@ -77,14 +79,14 @@ class Computer
 
   def solve_key
     key_feedback = compare_with_key # 1212 vs key
+    puts "First key feedback: #{key_feedback}"
 
-    puts "First key feedback: #{key_feedback}" # get first feedback
+    loop do
+      if key_solved?(key_feedback)
+        puts "Solved! The key was #{@current_guess} | #{key_feedback}"
+        break
+      end
 
-    if key_solved?(key_feedback)
-      puts "Solved! The key was #{@current_guess} | #{key_feedback}"
-    end
-
-    5.times do
       @current_guess = @possible_codes[0]
       puts "New guess: #{@current_guess}"
       key_feedback = compare_with_key
@@ -98,7 +100,6 @@ class Computer
       possible_key_feedback = compare_codes(@current_guess, code)
       if possible_key_feedback != key_feedback
         @possible_codes.delete(code)
-        puts "Deleted code #{code}"
       end
     end
 
@@ -125,12 +126,11 @@ class Computer
   end
 
   def generate_random_key
-    [rand(1..6), rand(1..6), rand(1..6), rand(1..6)]
+    [rand(1..6), rand(1..6), rand(1..6), rand(1..6)].join.to_i
   end
 end
 
-
-
 # p Computer.new.possible_codes
 computer = Computer.new
+p computer.key
 computer.solve_key
