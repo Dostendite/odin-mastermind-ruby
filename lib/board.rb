@@ -5,8 +5,8 @@ class Board
   attr_accessor :key, :indicators
 
   def initialize
-    @board = (Array.new(12) { Array.new(4, ' ') })
-    @indicators = (Array.new(12) { Array.new(4, ' ') })
+    @board = (Array.new(15) { Array.new(4, ' ') })
+    @indicators = (Array.new(15) { Array.new(4, ' ') })
     @colors = { 'red' => 1, 'green' => 2, 'yellow' => 3,
                 'blue' => 4, 'magenta' => 5, 'white' => 6 }
     @insert_counter = 0
@@ -57,8 +57,8 @@ class Board
   end
 
   def print_board
-    system 'clear'
-    12.times do |idx|
+    # system 'clear'
+    15.times do |idx|
       @board[idx].each do |number|
         print_color(number)
       end
@@ -73,7 +73,7 @@ class Board
   def check_board_status
     if @board[@insert_counter] == @key
       'Victory'
-    elsif @insert_counter == -12
+    elsif @insert_counter == -15
       'Out of turns'
     end
   end

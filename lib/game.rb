@@ -54,15 +54,11 @@ class Game
     @computer = Computer.new
     set_player_key
     @game_board.print_board
-
     check = game_over?
 
     until check
       @game_board.make_guess(@computer.make_guess)
-
-      if @computer.indicator_amount < 4
-        @computer.process_indicators(@game_board.latest_indicators)
-      end
+      @computer.process_indicators(@game_board.latest_indicators)
 
       sleep 0.25
       check = game_over?
