@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Knuth Algorithm Module
 module KnuthAlgo
   def generate_possible_codes
