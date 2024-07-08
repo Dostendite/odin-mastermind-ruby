@@ -1,4 +1,4 @@
-## Odin Master Mind
+## Mastermind for TOP
 
 Second OO project!
 
